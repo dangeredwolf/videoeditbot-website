@@ -4,100 +4,143 @@ const path = require("path");
 const port = 69;
 const filePath = __dirname + "/Twitter";
 
-const {httpCodes, githubURL} = require("./constants.js");
-const {config} = require("./config.js");
+const { githubURL, assetsURL, defaultHTML, defaultHTMLFooter } = require("./constants.js");
 
-const defaultHTML = `<!doctype html>
-<html>
-<head>
-<style>
-${config.style}
-</style>
-</head>
-<body>`;
-
-const defaultHTMLFooter = `<h3><a href="${githubURL}">videoeditbot ($PORT)</a></h3>`;
+const resultsPerPage = 5;
 
 
 function handleErrorPage(code, httpSrc, res) {
+	// idk, sometimes this fails depending on who calls this code.
 	try {
 		res.writeHead(code, {'Content-Type': 'text/html'});
 	} catch (e) {
 
 	}
+
 	return res.end(
 		`${defaultHTML}
-		<h1>${code} ${httpCodes[code] || ""}</h1>
+		<h1>${code} ${http.STATUS_CODES[code] || ""}</h1>
 		${defaultHTMLFooter.replace("$PORT",httpSrc)}`
 	);
+
 }
 
 function redirect(res, url) {
 	res.writeHead(308, {"Location": url, "Server": "videoeditbot"});
 	res.write(defaultHTML + "You are being redirected to <a href=" + url + ">" + url + "</a>");
+
 	return res.end();
 }
 
+function respondWithFile(res, filePath, mimeType) {
+	fs.readFile(filePath, {}, function(err, data) {
+		try {
+			res.writeHead(200, {"Content-Type": mimeType, "Server": "videoeditbot"});
+			res.write(data);
+			return res.end();
+		} catch(e) {
+			console.error(e);
+			handleErrorPage(500, port, res);
+		}
+	});
+}
+
 function request(req, res) {
+	// The domain doesn't matter: We just use it to parse query parameters in our URL
 	let url = new URL(req.url, "https://example.com");
-	if (req.url === "/discord") {
-		redirect(res, "https://discord.gg/cHjgTZ2");
-	} else if (req.url === "/twitter") {
-		redirect(res, "https://twitter.com/VideoEditBot");
-	} else if (req.url === "/commands") {
-		redirect(res, "https://github.com/GanerCodes/videoEditBot/blob/master/COMMANDS.md");
-	} else if (req.url === "/addDiscordBot") {
-		redirect(res, "https://discord.com/oauth2/authorize?client_id=704169521509957703&permissions=8&scope=bot");
-	} else if (req.url === "/favicon.ico") {
-		fs.readFile(__dirname + "/favicon.ico", {}, function(err, data) {
-			try {
-				res.writeHead(200, {"Content-Type": "image/x-icon", "Server": "videoeditbot"});
-				res.write(data);
-				return res.end();
-			} catch(e) {
-				console.error(e);
-				handleErrorPage(500, port, res);
+	// Remove slash and query string
+	let cleanUrl = req.url.substr(1).replace(/\?.+/g, "");
+
+	switch(cleanUrl) {
+		case "discord":
+			redirect(res, "https://discord.gg/cHjgTZ2");
+			break;
+		case "twitter":
+			redirect(res, "https://twitter.com/VideoEditBot");
+			break;
+		case "commands":
+			redirect(res, "https://github.com/GanerCodes/videoEditBot/blob/master/COMMANDS.md");
+			break;
+		case "addDiscordBot":
+			redirect(res, "https://discord.com/oauth2/authorize?client_id=704169521509957703&permissions=8&scope=bot");
+			break;
+		case "favicon.ico":
+			respondWithFile(res, __dirname + "/content/favicon.ico", "image/x-icon");
+			break;
+		case "app.css":
+			respondWithFile(res, __dirname + "/content/app.css", "text/css");
+			break;
+		case "app.js":
+			respondWithFile(res, __dirname + "/content/app.js", "text/javascript");
+			break;
+		case "api/user.json":
+
+			// Easter egg if you don't specify a username
+			if (!url.searchParams.get("username")) {
+				handleErrorPage(418, port, res);
 			}
-		});
-	} else if (req.url.match(/\/api\/user\.json\?user\=/g) !== null) {
-		let username = url.searchParams.get("user").toLowerCase();
-		// let username = req.url.match(/(?<=\/api\/user\.json\?user\=)[a-zA-Z0-9_]+/g)[0].toLowerCase();
-		console.log(username);
-		fs.readdir(path.join(filePath, username), (err, files) => {
-			if (err) {
-				handleErrorPage(404, port, res);
-				console.log(err);
-			}
-			try {
-				console.log(files);
-				let results = [];
-				if (files === null || typeof files === "undefined" || files.length < 1) {
-					handleErrorPage(204, port, res);
+
+			let username = url.searchParams.get("username").toLowerCase().replace(/\.\./g, ""); // username = username
+			let page = parseInt(url.searchParams.get("page")) || 0; // page = page number
+
+			// Read the user's files
+			fs.readdir(path.join(filePath, username), (err, files) => {
+
+				if (err) {
+					handleErrorPage(404, port, res);
+					console.error(err);
 				}
-				files.forEach(file => {
-					let id = parseInt(file.match(/(?<=_[a-zA-Z0-9_]+_)\d+/));
-					if (!isNaN(id)) {
-							
+				try {
+					let results = [];
+
+					// Return 204 No Content if the user exists but does not have files 
+					if (files === null || typeof files === "undefined" || files.length < 1) {
+						handleErrorPage(204, port, res);
 					}
-				});
-			} catch(e) {
-				console.error(e);
-				handleErrorPage(500, port, res);
-			}
-		})
-	}
-	else
-	{
-		fs.readFile(__dirname + "/index.html", {}, function(err, data) {
-			try {
-				res.writeHead(200, {"Content-Type": "text/html", "Server": "videoeditbot"});
-				res.write(data);
-				return res.end();
-			} catch(e) {
-				console.error(e);
-				handleErrorPage(500, port, res);
-			}
-		});
+
+					// Starting file
+					let start = page * (resultsPerPage + 1);
+
+					// Goes through each file and generates the id, video file, thumbnail.
+					for (let i = start; i < start + resultsPerPage; i++) {
+
+						let file = files[i];
+
+						// Corrupted listings are not returned
+						if (!!file) {
+
+							let id = parseInt(file.match(/(?<=_[a-zA-Z0-9_]+_)\d+/));
+							let fileObj = {};
+							let thumbName = file.replace(/(?<=\.)[a-z0-9]{3}$/g, "png");
+
+							// Listings without a valid ID are not returned
+							if (!isNaN(id)) {
+
+								fileObj.id = id;
+								fileObj.url = `${assetsURL}/${username}/${file}`;
+								fileObj.thumbnailUrl = `${assetsURL}/${username}/thumb/${file}`;
+
+								results.push(fileObj);
+
+							}
+						}
+					}
+
+					res.writeHead(200, {"Content-Type": "application/json", "Server": "videoeditbot"});
+					// Convert to JSON for results
+					res.write(JSON.stringify(results));
+
+					return res.end();
+
+				} catch(e) {
+					console.error(e);
+					handleErrorPage(500, port, res);
+				}
+			});
+			break;
+		default:
+			respondWithFile(res, __dirname + "/content/index.html", "text/html");
+			break;
 	}
 }
 
