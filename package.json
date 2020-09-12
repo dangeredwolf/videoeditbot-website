@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "pem": "^1.14.4"
-  }
+  "name": "videoeditbot-website",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
 }

@@ -1,4 +1,4 @@
-exports.githubURL = "https://github.com/dangeredwolf/dangeredwolf.com";
+exports.githubURL = "https://github.com/dangeredwolf/videoeditbot-website";
 
 exports.httpCodes = {
     100:"Continue",
