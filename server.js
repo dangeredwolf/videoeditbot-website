@@ -52,6 +52,7 @@ function request(req, res) {
 	let cleanUrl = req.url.substr(1).replace(/\?.+/g, "");
 
 	switch(cleanUrl) {
+		// Redirects
 		case "discord":
 			redirect(res, "https://discord.gg/cHjgTZ2");
 			break;
@@ -64,6 +65,7 @@ function request(req, res) {
 		case "addDiscordBot":
 			redirect(res, "https://discord.com/oauth2/authorize?client_id=704169521509957703&permissions=8&scope=bot");
 			break;
+		// Known files
 		case "favicon.ico":
 			respondWithFile(res, __dirname + "/content/favicon.ico", "image/x-icon");
 			break;
@@ -111,14 +113,14 @@ function request(req, res) {
 
 							let id = parseInt(file.match(/(?<=_[a-zA-Z0-9_]+_)\d+/));
 							let fileObj = {};
-							let thumbName = file.replace(/(?<=\.)[a-z0-9]{3}$/g, "png");
+							let thumbFile = file.replace(/(?<=\.)[a-z0-9]{3}$/g, "jpg");
 
 							// Listings without a valid ID are not returned
 							if (!isNaN(id)) {
 
 								fileObj.id = id;
 								fileObj.url = `${assetsURL}/${username}/${file}`;
-								fileObj.thumbnailUrl = `${assetsURL}/${username}/thumb/${file}`;
+								fileObj.thumbnailUrl = `${assetsURL}/${username}/thumb/${thumbFile}`;
 
 								results.push(fileObj);
 
