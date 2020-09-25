@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-location="start">
 	<head><meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -8,35 +8,152 @@
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		<link rel="stylesheet" href="https://dangeredwolf.com/waves/waves.min.css">
-		<link rel="stylesheet" href="app.css">
+		<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+		<link rel="stylesheet" href="/app.css">
 	</head>
 	<body>
+		<button class="iconButton waves-effect waves-light menuButton">
+			<i class="material-icons">menu</i>
+		</button>
 		<nav>
 			<header class="app-title">
 				<img src="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot128.png">
 				<span> Video Edit Bot </span>
+				<span class="betaTag">BETA</span>
 			</header>
-			<article class="waves-effect waves-light">
+			<article class="waves-effect waves-light" id="yourVideosButton">
 				<i class="material-icons">movie</i>
 				<span> Your Videos </span>
 			</article>
+			<article class="waves-effect waves-light" id="discordButton">
+				<img src="/discord.svg">
+				<span> Discord </span>
+			</article>
+			<div class="divider"></div>
+			<article class="waves-effect waves-light" id="statisticsButton">
+				<i class="material-icons">analytics</i>
+				<span> Statistics </span>
+			</article>
+			<article class="waves-effect waves-light switchAccountButton hidden" id="switchAccountButton">
+				<i class="material-icons">sync_alt</i>
+				<span> Switch Account </span>
+			</article>
 		</nav>
-		<div class="yourVideos main">
+		<div class="enterUsername main themedScrollBar">
+			<form>
+				<h1> Welcome to Video Edit Bot </h1>
+				<h3> Your videos are accessible here even if they are not uploaded to Twitter, for example if the video is too large, or if Twitter rate-limits the bot from tweeting. </h3>
+				<label class="mdc-text-field mdc-text-field--outlined twitterUsernameTextbox">
+					<span class="mdc-notched-outline">
+						<span class="mdc-notched-outline__leading"></span>
+						<span class="mdc-notched-outline__notch">
+							<span class="mdc-floating-label" id="twitterUsernameText">Twitter Username</span>
+						</span>
+						<span class="mdc-notched-outline__trailing"></span>
+					</span>
+					<input type="text" class="mdc-text-field__input enterUsernameBox" aria-labelledby="twitterUsernameText">
+				</label>
+				<br>
+				<div class="mdc-touch-target-wrapper">
+					<div class="mdc-checkbox mdc-checkbox--touch">
+						<input type="checkbox" class="mdc-checkbox__native-control" id="rememberMeCheckbox"  aria-labelledby="rememberMeSpan"/>
+						<div class="mdc-checkbox__background">
+							<svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+								<path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+							</svg>
+							<div class="mdc-checkbox__mixedmark"></div>
+						</div>
+						<div class="mdc-checkbox__ripple"></div>
+					</div>
+					<span class="checkboxSpan" id="rememberMeSpan"> Remember me </span>
+				</div>
+			</form>
+		</div>
+		<div class="enterUsername main themedScrollBar discordEnter">
+			<form>
+				<h1> Video Edit Bot for Discord </h1>
+				<h3> Add Video Edit Bot to your Discord server and allow users to edit videos and photos inline. </h3>
+				<button class="waves-effect waves-dark" id="discordAddServer">Add to your server</button>
+				<br><br>
+				<h3> Join the Video Edit Bot Discord server! </h3>
+				<button class="waves-effect waves-dark" id="discordJoinVEBServer">Join VideoEditBot Discord</button>
+				<br><br>
+				<h3> Already using Video Edit Bot for Discord? </h3>
+				<h4> If you know your server's ID, you can paste it in here to get access to your most recent videos.</h4>
+				<label class="mdc-text-field mdc-text-field--outlined discordGuildIDTextbox">
+					<span class="mdc-notched-outline">
+						<span class="mdc-notched-outline__leading"></span>
+						<span class="mdc-notched-outline__notch">
+							<span class="mdc-floating-label" id="discordGuildID">Discord Server ID</span>
+						</span>
+						<span class="mdc-notched-outline__trailing"></span>
+					</span>
+					<input type="text" class="mdc-text-field__input enterDiscordGuildIDBox" aria-labelledby="discordGuildID">
+				</label>
+				<br>
+			</form>
+		</div>
+
+		<div class="main themedScrollBar statistics">
+			<div class="scroller">
+				<section id="sectionCPU">
+					<h1><i class="material-icons">memory</i>CPU</h1>
+
+					<h2 id="cpuName"></h2>
+					<div id="cpuUsage"></div>
+					<h2>Total Usage</h2>
+					<div class="cpuMonitor" id="cpuUsageTotal"></div>
+				</section>
+				<section id="sectionStorageAndRAM">
+					<h2><img src="/memory.svg">Memory</h2>
+					<h2 class="memoryText" id="memory">-- GiB</h2> <h2 class="inline">/</h2> <h2 class="memoryText" id="memoryTotal">-- GiB</h2>
+					<br>
+					<br>
+					<h2><i class="material-icons">storage</i>Storage</h2>
+					<h2 class="memoryText" id="storage">-- GiB</h2> <h2 class="inline">/</h2> <h2 class="memoryText" id="storageTotal">-- TiB</h2>
+				</section>
+			</div>
+		</div>
+		<div class="yourVideos main themedScrollBar">
 			<div class="scroller">
 
 			</div>
 			<div class="preloader-wrapper active"><div class="spinner-layer"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>
+			<div class="informationBottom hidden">
+				<i class="material-icons">info_outline</i> Videos are deleted 30 days after they are created. Please download anything you would like to keep forever.
+			</div>
 		</div>
-		<div class="videoPreview">
-			
+
+		<div class="videoPlayer main themedScrollBar">
+			<div class="preloader-wrapper active"><div class="spinner-layer"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>
+			<div class="videoContainer">
+				<video controls autoplay id="videoPlayerSource" type="video/mp4" src=""/>
+			</div>
+			<div class="videoInfo">
+				<h1 class="videoInfoTitle"></h1>
+				<a download id="downloadButton" class="btn waves-effect waves-dark">
+					<i class="material-icons">save_alt</i>
+					Download
+				</a>
+			</div>
+			<div class="moreVideos themedScrollBar">
+				<h2 class="moreVideosText"> More videos... </h2>
+				<div class="scroller">
+					
+				</div>
+				<div class="preloader-wrapper active"><div class="spinner-layer"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>
+			</div>
 		</div>
 
 		<div class="alertContainer hidden">
 			
 		</div>
+
+		<div class="navClickOutDetector"></div>
 		
+		<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 		<script type="text/javascript" src="https://dangeredwolf.com/waves/waves.min.js"></script>
-		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="/app.js"></script>
 	</body>
 </html>

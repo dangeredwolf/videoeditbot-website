@@ -1,15 +1,21 @@
 :root {
 	--sidebarWidthDesktop: 200px;
 	--animationTiming: cubic-bezier(.1,1,.1,1);
-	--toolbarHeight: 64px;
+	--toolbarHeight: 0;
 	--vebYellow: #ffc107;
-	--fontFamily: Roboto, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"
+	--fontFamily: Roboto, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+	--mdc-theme-primary: var(--vebYellow); /* Primary color for material components */
+	--mdc-theme-secondary: var(--vebYellow); /* Secondary color for material components */
 }
 
 html {
-	background: #000;
+	background: #111;
 	font-family: var(--fontFamily);
 	color: #fff;
+}
+
+body {
+	overflow:hidden;
 }
 
 @keyframes sidebarLoad {
@@ -51,7 +57,9 @@ nav {
 	left: 0;
 	bottom: 0;
 	width: var(--sidebarWidthDesktop);
-	animation: sidebarLoad 0.6s var(--animationTiming);
+	/* 	animation: sidebarLoad 0.6s var(--animationTiming); */
+	z-index: 7;
+	transition: left 0.3s var(--animationTiming);
 }
 
 nav > article, nav > header {
@@ -89,25 +97,42 @@ nav > header {
 nav > header > span {
 	font-size:20px;
 	padding-top:4px;
-	padding-left:5px;
+	padding-left: 14px;
 }
 
-nav > article > i {
+nav > article > i,
+nav > article > img
+{
 	vertical-align: middle
+}
+
+
+nav > article > img {
+	height:22px;
+	width:22px;
+}
+
+nav > .divider {
+	width:100%;
+	height:1px;
+	padding-bottom:5px;
+	border-bottom: 1px #444 solid;
 }
 
 .main {
 	position: absolute;
-	left: calc(var(--sidebarWidthDesktop) + 10px);
-}
-
-.yourVideos {
 	overflow-y:auto;
-	left:calc(var(--sidebarWidthDesktop) + 10px)!important;
+	left:calc(var(--sidebarWidthDesktop));
+	padding-left:10px;
 	top:var(--toolbarHeight);
 	right:0;
-	left:0;
-	bottom:0
+	bottom:0;
+	padding-bottom:32px;
+	transition:all 0.5s var(--animationTiming);
+}
+
+.main:not(.enterUsername) {
+	background:#111;
 }
 
 .yourVideos > .scroller {
@@ -117,24 +142,22 @@ nav > article > i {
 	color: white;
 	grid-gap: 0.5em;
 	justify-content: left;
+	padding-top: 40px;
 }
 
 .yourVideos > .scroller > article {
 	cursor:pointer;
+	align-items: center;
+	justify-content: center;
+	height:250px;
+	width:250px;
+	background:#000;
+	border-radius:5px;
+	display:flex
 }
 
 .yourVideos > .scroller > article > img {
 	pointer-events: none
-}
-
-@media (max-width: 600px) {
-	nav {
-		left:calc(0px - var(--sidebarWidthDesktop));
-	}
-
-	.main {
-		left: 0!important
-	}
 }
 
 .alertContainer {
@@ -149,8 +172,8 @@ nav > article > i {
 	z-index:9;
 	backdrop-filter:blur(20px);
 	-webkit-backdrop-filter:blur(20px);
-	background:rgba(0,0,0,0.1);
-	transition:all 0.3s var(--animationTiming);
+	background: rgba(20,20,20,0.5);
+	transition:all 0.4s var(--animationTiming);
 }
 
 .alertContainer.hidden {
@@ -167,7 +190,8 @@ nav > article > i {
 	padding:10px;
 	border-radius:5px;
 	opacity:0;
-	animation:alertIn 0.3s var(--animationTiming) 0.15s forwards;
+	animation:alertIn 0.4s var(--animationTiming) 0.15s forwards;
+	box-shadow: 0 15px 35px rgba(20,20,20,0.5);
 }
 
 .alert.hidden {
@@ -186,7 +210,7 @@ nav > article > i {
 	padding:20px 0 20px 10px;
 }
 
-button {
+button, .btn {
 	-webkit-appearance:none;
 	appearance:none;
 	border:0;
@@ -201,6 +225,20 @@ button {
 	box-shadow:0 3px 7px rgba(0,0,0,0.5);
 	cursor:pointer;
 	transition:all 0.3s var(--animationTiming);
+	text-decoration: none;
+}
+
+button.iconButton {
+	background:transparent;
+	color:#fff;
+	padding:10px;
+	border-radius:50%;
+	z-index: 2;
+	box-shadow: none;
+}
+
+button.iconButton:focus:not(:active) {
+	background:transparent
 }
 
 .alert button {
@@ -208,12 +246,457 @@ button {
 	margin:0 10px 10px 0
 }
 
-button:focus:not(:active) {
-	background-color:#ffd54f
+button:focus:not(:active), .btn:focus:not(:active) {
+	background:#ffd54f
 }
 
-button:focus {
+button:focus, .btn:focus {
 	outline:0
+}
+
+html[data-location="start"] .enterUsername {
+	 /*left:calc(var(--sidebarWidthDesktop) + 10px); */
+	 left:var(--sidebarWidthDesktop);
+}
+
+html[data-location="start"] .yourVideos {
+	left:100%;
+	right:-100%
+}
+
+html[data-location="video"] .enterUsername, html[data-location="video"] .yourVideos, html[data-location="user"] .enterUsername {
+	left:-50%;
+	right:50%
+}
+
+html[data-location="user"] .yourVideos {
+	/*left:calc(var(--sidebarWidthDesktop) + 10px);*/
+	 left:var(--sidebarWidthDesktop);
+}
+
+html[data-location="start"] .videoPlayer, html[data-location="user"] .videoPlayer {
+	left:100%;
+	right:-100%
+}
+
+html.discordOpen .enterUsername {
+	top:-100%;
+	bottom: 100%;
+}
+
+html.statsOpen .enterUsername {
+	top:-100%;
+	bottom: 100%;
+}
+
+html.discordOpen .statistics {
+	top:100%;
+}
+
+html:not(.statsOpen) .statistics {
+	top:100%;
+}
+
+html.discordOpen .enterUsername.discordEnter {
+	top:0;
+	bottom:0;
+}
+
+html.discordOpen .enterUsername.statistics {
+	top:-100%;
+	bottom: 100%;
+}
+
+html:not(.discordOpen) .enterUsername.discordEnter {
+	top:100%;
+}
+
+html:not(.statsOpen) .enterUsername.statistics {
+	top:100%;
+	bottom:-100%;
+}
+
+html.statsOpen .enterUsername.statistics {
+	top:0;
+	bottom:0;
+}
+
+html.statsOpen .enterUsername.discordEnter {
+	top:-100%;
+	bottom: 100%;
+}
+
+.enterUsername {
+	display:flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.enterUsername > form {
+	width:100%;
+	max-width:450px;
+	height:100%;
+	max-height: 280px;
+}
+
+.enterUsername.discordEnter > form, .enterUsername.statistics > form {
+	width:100%;
+	max-width:600px;
+	height:100%;
+	max-height: 500px;
+}
+
+.enterUsername > form > h3 {
+	font-weight:400;
+}
+
+.checkboxSpan {
+	vertical-align: middle;
+	display: inline-block;
+	margin-top: -28px;
+	margin-left: -6px;
+	cursor: pointer;
+}
+
+.videoPlayer video {
+	width:100%;
+	height:100%;
+	background:#000;
+}
+
+video:focus {
+	outline:0
+}
+
+.videoContainer {
+	position:absolute;
+	left:50px;
+	right: 350px;
+	top: 50px;
+	bottom:200px;
+}
+
+.videoPlayer {
+	top:0
+}
+
+.switchAccountButton {
+	position:absolute;
+	bottom:0;
+	left:0;
+}
+
+article.hidden {
+	display:none;
+}
+
+.videoInfo {
+	position:absolute;
+	bottom:0;
+	height:200px;
+	left: 50px;
+	right: 350px;
+}
+
+.moreVideos {
+	position:absolute;
+	right: 50px;
+	bottom: 0;
+	top: 50px;
+	width:250px;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+.moreVideosText {
+	margin-top:0;
+}
+
+.moreVideos > .scroller > article {
+	width:100%;
+	height:auto
+}
+
+.moreVideos > .scroller > article > img {
+	width:100%
+}
+
+.betaTag {
+	position:absolute;
+	left: 43px;
+	font-size: 10px;
+	top: 32px;
+	opacity:0.5;
+}
+
+.themedScrollBar::-webkit-scrollbar
+{
+	width:10px;
+}
+
+.themedScrollBar::-webkit-scrollbar-track
+{
+	background:#111;
+}
+
+.themedScrollBar::-webkit-scrollbar-thumb
+{
+	border-radius:5px;
+	background:#333;
+}
+
+.themedScrollBar::-webkit-scrollbar-thumb:hover
+{
+	border-radius:5px;
+	background:#666;
+}
+
+#cpuUsage {
+	display:grid;
+	grid-template-columns: repeat(auto-fill, minmax(100px, 2fr));
+	width:100%
+}
+
+.cpuMonitor {
+    height:50px;
+    width:100px;
+    text-align:center;
+    padding-top:16px;
+    box-sizing:border-box;
+    transition:background 0.3s var(--animationTiming)
+}
+
+#cpuUsageTotal {
+	width:150px;
+	height:100px;
+	padding-top:36px;
+	font-size:24px
+}
+
+.statistics h1 {
+	font-size:36px
+}
+
+.statistics h1 > i, .statistics h2 > img, .statistics h2 > i  {
+	font-size:36px;
+	width:36px;
+	vertical-align:middle;
+	padding-right:10px;
+	margin-top:-5px
+}
+
+.memoryText {
+	display:inline;
+	padding:15px;
+	font-weight:400;
+}
+
+#memory, #storage {
+	padding-left:0;
+	font-size:32px;
+}
+
+#cpuUsage {
+	width:400px
+}
+
+@media (min-width: 1200px) {
+	#sectionStorageAndRAM {
+		position:absolute;
+		left: 650px;
+		top:100px;
+	}
+}
+
+.statistics > .scroller {
+    padding: 100px;
+}
+
+.inline {
+	display:inline;
+}
+
+.informationBottom {
+	padding-top:30px;
+	text-align:center;
+}
+
+.informationBottom > i {
+	vertical-align:middle
+}
+
+.btn > i, button > i
+{
+	vertical-align:middle;
+	margin-top:-6px;
+	width:24px;
+	height:24px;
+}
+
+.informationBottom.hidden {
+	display:none;
+}
+
+@media (max-width: 900px) {
+
+
+	.moreVideos > .scroller > article {
+		width:180px;
+		height:180px
+	}
+
+	.moreVideos > .scroller > article > img {
+		max-width:180px;
+		max-height:180px
+	}
+
+	.moreVideos {
+		width:180px;
+	}
+
+	.videoContainer {
+		right:280px;
+	}
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+	nav {
+		left:calc(0px - var(--sidebarWidthDesktop));
+		animation:none
+	}
+
+	.menuOpen nav {
+		left:0;
+	}
+
+	.navClickOutDetector {
+		transition:all 0.5s var(--animationTiming)
+	}
+
+	.menuOpen .navClickOutDetector {
+		position:absolute;
+		left:0;
+		right:0;
+		top:0;
+		bottom:0;
+		z-index:6;
+		backdrop-filter:blur(10px);
+		-webkit-backdrop-filter:blur(10px);
+		background: rgba(20,20,20,0.7);
+	}
+
+	html[data-location="start"] .statistics {
+		left:0;
+	}
+
+	.statistics > .scroller {
+		padding: 35px;
+	}
+
+	html[data-location="user"] .yourVideos {
+		left:0;
+	}
+
+	html[data-location="start"] .enterUsername {
+		left:0;
+	}
+
+	html[data-location="video"] .videoPlayer {
+		left:0;
+		padding-right: 20px;
+		padding-left: 20px;
+	}
+	
+	/*html[data-location="video"] .enterUsername {
+		left:-50%;
+		right:50%;
+	}*/
+
+	.videoInfo {
+		right:0
+	}
+
+	.videoContainer {
+	    right: 0;
+	    left: -10px;
+	    position:relative;
+	    top: 70px;
+	}
+
+	.videoInfo {
+		position:relative;
+		bottom: -60px;
+		height: 200px;
+		left: 10px;
+		right: 50px;
+	}
+
+	.moreVideos {
+		position:relative;
+		right:initial;
+		bottom:initial;
+		top:initial;
+		width:initial;
+		overflow-y:auto;
+		overflow-x:hidden;
+	}
+
+	.videoInfoTitle {
+		font-size:24px
+	}
+
+	.yourVideos > .scroller > article {
+		width:180px;
+		height:180px
+	}
+
+	.yourVideos > .scroller > article > img {
+		max-width:180px;
+		max-height:180px
+	}
+
+	.yourVideos > .scroller {
+		padding-top:60px
+	}
+
+	.enterUsername > form {
+		margin:50px
+	}
+}
+
+/* Fixes for material design components to make it work with our theme */
+
+.mdc-text-field:not(.mdc-text-field--disabled) .mdc-floating-label {
+	color:rgba(255,255,255,.6);
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading, .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch, .mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+	border-color: rgba(255,255,255,.38);
+}
+
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+	color:var(--vebYellow);
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__leading, .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__notch, .mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-notched-outline .mdc-notched-outline__trailing {
+	border-color: rgba(255,255,255,.87);
+}
+
+.mdc-text-field:not(.mdc-text-field--disabled) .mdc-text-field__input {
+	color: rgba(255,255,255,.87);
+}
+
+.mdc-checkbox__native-control:enabled:not(:checked):not(:indeterminate):not([data-indeterminate=true])~.mdc-checkbox__background {
+	border-color: rgba(255,255,255,.54);
+}
+
+.mdc-checkbox__native-control:enabled~.mdc-checkbox__background .mdc-checkbox__checkmark {
+	color: #000;
+}
+
+.enterUsername .mdc-text-field {
+	width:300px;
 }
 
 /* Material Design Spinner */
@@ -250,7 +733,15 @@ button:focus {
 	width:48px;
 	height:48px;
 	box-sizing:border-box;
-	animation:containerRotate 1.568s linear infinite
+	animation:containerRotate 1.568s linear infinite;
+	left: 50%;
+	margin-left: -24px;
+	margin-bottom: 24px;
+	margin-top: 24px;
+}
+
+.preloader-wrapper.hidden {
+	display:none;
 }
 
 .preloader-wrapper.big {
@@ -329,4 +820,17 @@ button:focus {
 	border-left-color:transparent;
 	transform:rotate(-129deg);
 	animation:rightSpin 1.333s cubic-bezier(.4,0,.2,1) infinite both
+}
+
+.main > .preloader-wrapper {
+	width:64px;
+	height:64px;
+	left:50%;
+	margin-left:-32px;
+}
+
+.videoPlayer > .preloader-wrapper {
+	top:50%;
+	margin-top:-64px;
+	position:absolute;
 }
