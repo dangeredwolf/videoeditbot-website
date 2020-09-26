@@ -1,15 +1,38 @@
 <!DOCTYPE html>
-<html lang="en" data-location="start">
+<html lang="en" data-location="$LOCATION$">
 	<head><meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta charset="UTF-8">
 		<meta http-equiv="x-ua-compatible" content="ie=edge">
-		<title> Video Edit Bot (nextgen) </title>
+		<meta name="description" content="Browse your Video Edit Bot creations at videoedit.bot">
+		<title> Video Edit Bot - Beta </title>
 		<!-- Google Fonts Roboto -->
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
 		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 		<link rel="stylesheet" href="https://dangeredwolf.com/waves/waves.min.css">
 		<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
 		<link rel="stylesheet" href="/app.css">
+		<link rel="canonical" href="https://videoedit.bot/" />
+		<link href="https://raw.githubusercontent.com/GanerCodes/videoEditBot/master/icons/VideoEditBot180.png" rel="apple-touch-icon" sizes="180x180">
+		<link href="https://raw.githubusercontent.com/GanerCodes/videoEditBot/master/icons/VideoEditBot120.png" rel="apple-touch-icon" sizes="120x120">
+		<link href="https://raw.githubusercontent.com/GanerCodes/videoEditBot/master/icons/VideoEditBot60.png" rel="apple-touch-icon" sizes="60x60">
+		<link href="https://raw.githubusercontent.com/GanerCodes/videoEditBot/master/icons/VideoEditBot152.png" rel="apple-touch-icon" sizes="152x152">
+		<link href="https://raw.githubusercontent.com/GanerCodes/videoEditBot/master/icons/VideoEditBot167.png" rel="apple-touch-icon" sizes="167x167">
+		<meta name="apple-mobile-web-app-title" content="VideoEditBot">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="robots" content="index, follow" />
+		<meta name="twitter:card" content="summary"/>
+		<meta name="twitter:site" content="@VideoEditBot"/>
+		<meta name="twitter:title" content="Video Edit Bot"/>
+		<meta name="twitter:description" content="Browse your Video Edit Bot creations at videoedit.bot"/>
+		<meta name="twitter:image" content="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot256.png"/>
+		<meta name="twitter:image:alt" content="Video Edit Bot logo"/>
+		<meta name="og:title" content="Video Edit Bot"/>
+		<meta name="og:description" content="Browse your Video Edit Bot creations at videoedit.bot"/>
+		<meta name="og:image" content="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot256.png"/>
+		<meta name="og:image:alt" content="Video Edit Bot logo"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
 	</head>
 	<body>
 		<button class="iconButton waves-effect waves-light menuButton">
@@ -17,7 +40,7 @@
 		</button>
 		<nav>
 			<header class="app-title">
-				<img src="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot128.png">
+				<img src="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot128.png" alt="Video Edit Bot logo">
 				<span> Video Edit Bot </span>
 				<span class="betaTag">BETA</span>
 			</header>
@@ -40,7 +63,7 @@
 			</article>
 		</nav>
 		<div class="enterUsername main themedScrollBar">
-			<form>
+			<div class="form">
 				<h1> Welcome to Video Edit Bot </h1>
 				<h3> Your videos are accessible here even if they are not uploaded to Twitter, for example if the video is too large, or if Twitter rate-limits the bot from tweeting. </h3>
 				<label class="mdc-text-field mdc-text-field--outlined twitterUsernameTextbox">
@@ -67,12 +90,12 @@
 					</div>
 					<span class="checkboxSpan" id="rememberMeSpan"> Remember me </span>
 				</div>
-			</form>
+			</div>
 		</div>
 		<div class="enterUsername main themedScrollBar discordEnter">
-			<form>
+			<div clss="form">
 				<h1> Video Edit Bot for Discord </h1>
-				<h3> Add Video Edit Bot to your Discord server and allow users to edit videos and photos inline. </h3>
+				<h3> Add Video Edit Bot to your Discord server and allow users to edit videos and photos on-the-fly. </h3>
 				<button class="waves-effect waves-dark" id="discordAddServer">Add to your server</button>
 				<br><br>
 				<h3> Join the Video Edit Bot Discord server! </h3>
@@ -91,7 +114,7 @@
 					<input type="text" class="mdc-text-field__input enterDiscordGuildIDBox" aria-labelledby="discordGuildID">
 				</label>
 				<br>
-			</form>
+			</div>
 		</div>
 
 		<div class="main themedScrollBar statistics">

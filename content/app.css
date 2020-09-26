@@ -12,6 +12,12 @@ html {
 	background: #111;
 	font-family: var(--fontFamily);
 	color: #fff;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	overflow: hidden;
 }
 
 body {
@@ -332,21 +338,21 @@ html.statsOpen .enterUsername.discordEnter {
 	justify-content: center;
 }
 
-.enterUsername > form {
+.enterUsername > .form {
 	width:100%;
 	max-width:450px;
 	height:100%;
 	max-height: 280px;
 }
 
-.enterUsername.discordEnter > form, .enterUsername.statistics > form {
+.enterUsername.discordEnter > .form, .enterUsername.statistics > .form {
 	width:100%;
 	max-width:600px;
 	height:100%;
 	max-height: 500px;
 }
 
-.enterUsername > form > h3 {
+.enterUsername > .form > h3 {
 	font-weight:400;
 }
 
@@ -657,11 +663,17 @@ article.hidden {
 	}
 
 	.yourVideos > .scroller {
-		padding-top:60px
+		padding-top:60px;
+		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 	}
 
-	.enterUsername > form {
+	.enterUsername > .form {
 		margin:50px
+	}
+
+	button.iconButton {
+		padding:20px;
+		z-index:3
 	}
 }
 

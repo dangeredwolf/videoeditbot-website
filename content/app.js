@@ -7,6 +7,7 @@ let reachedEnd = false;
 let reachedEndPlayer = false;
 let canGoBackHomeRegardless = false;
 let isGuild = false;
+let queuedAlert = {};
 
 function make(tagName) {
 	return $(document.createElement(tagName));
@@ -180,6 +181,11 @@ function userScrollCheckPlayer() {
 
 function createAlert(title, message, buttonText, callback) {
 
+	if ($(".alert").length > 0) {
+		queuedAlert = {title:title, message:message, buttonText:buttonText, callback:callback};
+		return;
+	}
+
 	$(".alert").remove();
 
 	let button =
@@ -188,6 +194,10 @@ function createAlert(title, message, buttonText, callback) {
 			$(".alert").addClass("hidden");
 			setTimeout(() => {
 				$(".alert").remove();
+				if (queuedAlert.title) {
+					createAlert(queuedAlert.title, queuedAlert.message, queuedAlert.buttonText, queuedAlert.callback);
+					queuedAlert = {};
+				}
 			}, 500);
 			if (typeof callback === "function") {
 				callback();
@@ -294,13 +304,17 @@ function goHome() {
 }
 
 function goToUser() {
+	if (typeof currentUsername === "undefined") {
+		goHome();
+		return;
+	}
 	$("html").attr("data-location", "user");
 	$("#videoPlayerSource")[0].pause();
 	history.pushState({}, undefined, (isGuild ? "/discord/" : "/") + currentUsername);
 }
 
 function normalizeUsername(name) {
-	return name.replace(/ /g, "").toLowerCase();
+	return name.replace(/ /g, "").toLowerCase().replace(/\@/g,"");
 }
 
 
@@ -581,14 +595,14 @@ $(window).on("popstate", event => {
 })
 
 $(".enterUsernameBox").on("keypress", (e) => {
-	if (e.code === "Enter") {
+	if (e.code === "Enter" || e.code === "") {
 		e.preventDefault();
 		enterUsernameFunc();
 	}
 })
 
 $(".enterDiscordGuildIDBox").on("keypress", (e) => {
-	if (e.code === "Enter") {
+	if (e.code === "Enter" || e.code === "") {
 		e.preventDefault();
 		enterDiscordGuildFunc();
 	}

@@ -1,16 +1,21 @@
 const http = require("http");
+const https = require("https");
 const http2 = require("http2");
 const fs = require("fs");
 const path = require("path");
-const port = 69;
-const filePath = __dirname + "/Twitter";
+const port = 12443;
+const filePath = "/home/videoeditbot/vebdata/Twitter";
 
 const { githubURL, assetsURL, defaultHTML, defaultHTMLFooter } = require("./constants.js");
 
 const resultsPerPage = 20;
 
 const sysInfo = require("systeminformation");
-const diskSelected = 1; // SYSTEM DEPENDENT
+const diskSelected = 2; // SYSTEM DEPENDENT
+const serverOptions = {
+	key:fs.readFileSync("/etc/ssl/private/videoedit.bot.pem"),
+	cert:fs.readFileSync("/etc/ssl/certs/videoedit.bot.pem")
+};
 
 let currentStats = {
 	cpuName:undefined,
@@ -21,18 +26,6 @@ let currentStats = {
 	storageCapacity:undefined,
 	memoryUsage:undefined,
 	memoryCapacity:undefined
-}
-
-function formatBytes(bytes) {
-	let conversion = bytes / 1024 ** 2;
-	let unit = "TiB";
-
-	if (conversion > 1024) {
-		conversion = conversion / 1024;
-		unit = "GiB";
-	}
-
-	return (Math.round(conversion * 10) / 10) + " " + unit;
 }
 
 function roundMe(num) {
@@ -142,6 +135,8 @@ function request(req, res) {
 	let guildId;
 	let fsPath;
 
+	console.log(req.url);
+
 	// Translate legacy URLs to the VideoEditBot Player
 	if (cleanUrl.match(/[a-zA-Z0-9_]+\/_[a-zA-Z0-9_\-\.]+\.(mp4|jpg|png)/g) !== null) {
 		redirect(res, cleanUrl.match(/\d{5,15}(?=_20)/g)[0]);
@@ -213,7 +208,7 @@ function request(req, res) {
 			// Read the user's files
 			fs.readdir(fsPath, (err, files) => {
 
-				console.log(files);
+				// console.log(files);
 
 				if (err) {
 					handleErrorPage(404, port, res);
@@ -286,7 +281,7 @@ function request(req, res) {
 			let videoId = parseInt((url.searchParams.get("video") || "").toLowerCase().replace(/\.\./g, "")); // videoId = video id;
 			let foundVideo = false;
 
-			console.log(username,videoId);
+			// console.log(username,videoId);
 
 			if (url.searchParams.get("guild") && !isNaN(parseInt(url.searchParams.get("guild")))) {
 				guildId = url.searchParams.get("guild").toLowerCase().replace(/\.\./g, "");
@@ -386,12 +381,35 @@ function request(req, res) {
 			});
 			break;
 		default:
-			respondWithFile(res, __dirname + "/content/index.html", "text/html");
+			fs.readFile(__dirname + "/content/index.html", {}, function(err, data) {
+				try {
+					res.writeHead(200, {"Content-Type": "text/html", "Server": "videoeditbot"});
+					let page = data.toString();
+
+					// console.log(cleanUrl);
+
+					if (cleanUrl.match(/discord\/\d+\/\d+/g) || cleanUrl.match(/[a-zA-Z0-9_]+\/\d+/g)) {
+						// console.log("Video page...");
+						page = page.replace(/\$LOCATION\$/, "video");
+					} else if (cleanUrl.match(/discord\/\d+\/?(?!.)/g) || cleanUrl.match(/[a-zA-Z0-9_]+\/?(?!.)/g)) {
+						// console.log("User page...");
+						page = page.replace(/\$LOCATION\$/, "user");
+					}  else {
+						page = page.replace(/\$LOCATION\$/, "start");
+					}
+
+					res.write(page);
+					return res.end();
+				} catch(e) {
+					console.error(e);
+					handleErrorPage(500, port, res);
+				}
+			});
 			break;
 	}
 }
 
-let server = http.createServer((req, res) => {
+let server = https.createServer(serverOptions, (req, res) => {
 	try {
 		request(req, res);
 	} catch (e) {
