@@ -1,5 +1,5 @@
 exports.assetsURL = "https://assets.videoedit.bot";
-exports.defaultHTMLFooter = `<h3><a href="https://github.com/dangeredwolf/videoeditbot-website">videoeditbot ($PORT)</a></h3>`;
+exports.defaultHTMLFooter = `<h3><a href="https://github.com/dangeredwolf/videoeditbot-website">videoeditbot</a></h3>`;
 exports.defaultHTML = `
 <!doctype html>
 <html>
