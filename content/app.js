@@ -17,7 +17,7 @@ function loadVideos() {
 	$(".yourVideos>.preloader-wrapper").removeClass("hidden");
 
 	$.ajax({
-		url:location.origin + "/api/user.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&page=" + pageCount,
+		url:"https://api.videoedit.bot/1/user.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&page=" + pageCount,
 		accepts: [
 			"application/json"
 		]
@@ -85,7 +85,7 @@ function loadVideosPlayer() {
 	$(".moreVideos>.preloader-wrapper").removeClass("hidden");
 
 	$.ajax({
-		url:location.origin + "/api/user.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&page=" + pageCountPlayer,
+		url:"https://api.videoedit.bot/1/user.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&page=" + pageCountPlayer,
 		accepts: [
 			"application/json"
 		]
@@ -261,7 +261,7 @@ function loadVideo(videoId) {
 		finishLoadVideo(parseInt(videoId), idData[parseInt(videoId)])
 	} else {
 		$.ajax({
-			url:location.origin + "/api/video.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&video=" + videoId,
+			url:"https://api.videoedit.bot/1/video.json?" + (isGuild ? "guild" : "username") + "=" + normalizeUsername(currentUsername) + "&video=" + videoId,
 			accepts: [
 				"application/json"
 			]
@@ -325,7 +325,7 @@ function updateStats() {
 	}
 
 	$.ajax({
-		url:location.origin + "/api/stats.json",
+		url:"https://api.videoedit.bot/1/stats.json",
 		accepts: [
 			"application/json"
 		]
@@ -335,7 +335,7 @@ function updateStats() {
 		let stats;
 
 		try {
-			stats = JSON.parse(data);
+			stats = data;
 		} catch(e) {
 			return createAlert("An error occurred while fetching statistics", e, undefined, goHome);
 		}
