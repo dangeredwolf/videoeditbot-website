@@ -49,10 +49,15 @@ function initialStats() {
 	sysInfo.mem().then(stats => {
 		currentStats.memoryUsage = formatBytes(stats.used);
 		currentStats.memoryCapacity = formatBytes(stats.total);
+		currentStats.memoryUsageRaw = stats.used;
+		currentStats.memoryCapacityRaw = stats.total;
+
 	});
 	sysInfo.fsSize().then(stats => {
 		currentStats.storageCapacity = formatBytes(stats[diskSelected].size);
 		currentStats.storageUsage = formatBytes(stats[diskSelected].used);
+		currentStats.storageCapacityRaw = stats[diskSelected].size;
+		currentStats.storageUsageRaw = stats[diskSelected].used;
 	});
 
 	autoUpdateStats()
@@ -70,6 +75,7 @@ function autoUpdateStats() {
 
 		sysInfo.mem().then(stats => {
 			currentStats.memoryUsage = formatBytes(stats.used);
+			currentStats.memoryUsageRaw = stats.used;
 		});
 	}, 2000);
 
@@ -77,6 +83,7 @@ function autoUpdateStats() {
 	setInterval(() => {
 		sysInfo.fsSize().then(stats => {
 			currentStats.storageUsage = formatBytes(stats[diskSelected].used);
+			currentStats.storageUsageRaw = stats[diskSelected].used;
 		});
 	}, 60000);
 
@@ -85,6 +92,14 @@ function autoUpdateStats() {
 function requestApi(req, res) {
 	let cleanUrl = req.url.substr(1).replace(/\?.+/g, "");
 	let url = new URL(req.url, "https://api.videoedit.bot");
+
+	let username;
+	let guildId;
+	let fsPath;
+
+	let ipOrigin = req.headers["cf-connecting-ip"];
+	console.log(ipOrigin);
+	console.log(req.url);
 
 	switch(cleanUrl) {
 		case "1/stats.json":
@@ -131,11 +146,17 @@ function requestApi(req, res) {
 					// Go from new to old, rather than old to new
 					files.reverse();
 
-					// Starting file
-					let start = page * (resultsPerPage + 1);
+					let thumbOffset = 0;
+
+					try {
+						thumbOffset = fs.readdirSync(path.join(fsPath, "thumb")) ? 1 : 0;
+					} catch (e) {}
+
+					// Starting file, dirty hack to ignore thumbs folder
+					let start = thumbOffset + (page * resultsPerPage);
 
 					// Goes through each file and generates the id, video file, thumbnail.
-					for (let i = start; i < start + resultsPerPage; i++) {
+					for (let i = start; (i + 1) <= start + resultsPerPage; i++) {
 
 						let file = files[i];
 
@@ -146,8 +167,11 @@ function requestApi(req, res) {
 
 							if (username) {
 								id = parseInt(file.match(/(?<=_[a-zA-Z0-9_]+_)\d+/));
+								// console.log(file);
 							} else if (guildId) {
 								id = parseInt(file.match(/\d+/));
+							} else {
+								console.log(file);
 							}
 							let fileObj = {};
 							let thumbFile = file.replace(/(?<=\.)[a-z0-9]{3}$/g, "jpg");
@@ -166,13 +190,34 @@ function requestApi(req, res) {
 									fileObj.thumbnailUrl = `${assetsURL}/@/${guildId}/thumb/${thumbFile}`;
 								}
 
+								fileObj.extension = file.match(/(?<=\.)[a-z0-9]{3}$/g)[0];
+
+								switch(fileObj.extension) {
+									case "png":
+									case "jpg":
+									case "jpeg":
+									case "gif":
+									case "webm":
+										fileObj.type = "image";
+										break;
+									case "mp4":
+									case "mov":
+									case "avi":
+										fileObj.type = "video";
+										break;
+								}
+
 								results.push(fileObj);
 
+							} else {
+								// console.log("Invalid ID " + id)
 							}
+						} else {
+							// console.log("A file was corrupted or not found (" + i + ")")
 						}
 					}
 
-					res.writeHead(200, {"Access-Control-Allow-Origin":"https://beta.videoedit.bot", "X-Video-Count": filesReturned,"Content-Type": "application/json", "Server": "videoeditbot"});
+					res.writeHead(200, {"Access-Control-Allow-Origin":"https://beta.videoedit.bot", "X-Page-Length": resultsPerPage, "X-Video-Count": files.length - thumbOffset, "Content-Type": "application/json", "Server": "videoeditbot"});
 					// Convert to JSON for results
 					res.write(JSON.stringify(results));
 
@@ -186,7 +231,13 @@ function requestApi(req, res) {
 			});
 			break;
 		case "1/video.json":
-			let videoId = parseInt((url.searchParams.get("video") || "").toLowerCase().replace(/\.\./g, "")); // videoId = video id;
+			let rawVideoId = url.searchParams.get("video") || "";
+
+			if (rawVideoId.match(/_[a-zA-Z0-9_\-\.]+\.(mp4|jpg|png)/g) !== null) {
+				rawVideoId = rawVideoId.match(/\d{5,15}(?=_20)/g)[0];
+			}
+			console.log(rawVideoId)
+			let videoId = parseInt(rawVideoId.toLowerCase().replace(/\.\./g, "")); // videoId = video id;
 			let foundVideo = false;
 
 			// console.log(username,videoId);
@@ -249,6 +300,23 @@ function requestApi(req, res) {
 								} else if (guildId) {
 									result.url = `${assetsURL}/@/${guildId}/${file}`;
 									result.thumbnailUrl = `${assetsURL}/@/${guildId}/thumb/${thumbFile}`;
+								}
+
+								result.extension = file.match(/(?<=\.)[a-z0-9]{3}$/g)[0];
+
+								switch(result.extension) {
+									case "png":
+									case "jpg":
+									case "jpeg":
+									case "gif":
+									case "webm":
+										result.type = "image";
+										break;
+									case "mp4":
+									case "mov":
+									case "avi":
+										result.type = "video";
+										break;
 								}
 
 								// console.log(result);

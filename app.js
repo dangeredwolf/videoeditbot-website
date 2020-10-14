@@ -1,7 +1,13 @@
 const { handleErrorPage } = require("./utils.js");
 const { defaultHTML } = require("./constants.js");
+const filePath = "/home/videoeditbot/vebdata/Twitter";
 
 const fs = require("fs");
+const path = require("path");
+
+const port = 12443;
+
+const { assetsURL } = require("./constants.js");
 
 
 function redirect(res, url) {
@@ -25,20 +31,112 @@ function respondWithFile(res, filePath, mimeType) {
 	});
 }
 
+function searchForVideo(isGuild, username, videoId) {
+	let foundVideo = false;
+	let fsPath;
+
+	// console.log(isGuild, username, videoId);
+
+	try {
+
+		if (isGuild) {
+			fsPath = path.join(filePath, "@", username);
+		} else {
+			fsPath = path.join(filePath, username);
+		}
+
+		let files = fs.readdirSync(fsPath);
+		// console.log(files);
+
+			// Goes through files to find the one with the correct ID
+		for (let i = 0; i < files.length; i++) {
+
+			let file = files[i];
+
+			// console.log(file, typeof file)
+
+			// Corrupted listings are not returned
+			if (typeof file !== "string") {
+				// console.log("File doesn't exist")
+				continue;
+			}
+
+			let id;
+
+			if (isGuild) {
+				id = file.match(/\d+/);
+			} else {
+				id = file.match(/(?<=_[a-zA-Z0-9_]+_)\d+/);
+			}
+
+			if (id === null) {
+				// console.log("Invalid ID for file " + file)
+				continue;
+			}
+
+			// console.log(id[0], videoId);
+
+			if ((id[0].toString()) === (videoId).toString()) {
+				// console.log("i found a file!!");
+				let thumbFile = file.replace(/(?<=\.)[a-z0-9]{3}$/g, "jpg");
+				let result = {};
+				foundVideo = true;
+
+				result.id = parseInt(id[0]);
+				if (isGuild) {
+					result.url = `${assetsURL}/@/${username}/${file}`;
+					result.thumbnailUrl = `${assetsURL}/@/${username}/thumb/${thumbFile}`;
+				} else {
+					result.url = `${assetsURL}/${username}/${file}`;
+					result.thumbnailUrl = `${assetsURL}/${username}/thumb/${thumbFile}`;
+				}
+
+				result.extension = file.match(/(?<=\.)[a-z0-9]{3}$/g)[0];
+
+				switch(result.extension) {
+					case "png":
+					case "jpg":
+					case "jpeg":
+					case "gif":
+					case "webm":
+						result.type = "image";
+						break;
+					case "mp4":
+					case "mov":
+					case "avi":
+						result.type = "video";
+						break;
+				}
+
+				let stats = fs.statSync(path.join(fsPath, file));
+
+				if (stats.mtimeMs) {
+					result.timeCreated = stats.mtimeMs;
+				} else {
+					result.timeCreated = 0;
+				}
+
+				return result;
+
+			}
+
+		}
+	} catch(e) {
+		console.error(e);
+	}
+
+	return {};
+}
+
 function request(req, res) {
 	// console.log(req);
 	// The domain doesn't matter: We just use it to parse query parameters in our URL
 	let url = new URL(req.url, "https://beta.videoedit.bot");
 	let ipOrigin = req.headers["cf-connecting-ip"];
 	console.log(ipOrigin);
+	console.log(req.url);
 	// Remove slash and query string
 	let cleanUrl = req.url.substr(1).replace(/\?.+/g, "");
-
-	let username;
-	let guildId;
-	let fsPath;
-
-	console.log(req.url);
 
 	// Translate legacy URLs to the VideoEditBot Player
 	if (cleanUrl.match(/[a-zA-Z0-9_]+\/_[a-zA-Z0-9_\-\.]+\.(mp4|jpg|png)/g) !== null) {
@@ -95,10 +193,12 @@ function request(req, res) {
 
 					// console.log(cleanUrl);
 
-					let isDiscordVideo = cleanUrl.match(/discord\/(?=\d+\/\d+)/g);
-					let isUserVideo = cleanUrl.match(/[a-zA-Z0-9_]+(?=\/\d+)/g);
+					let isDiscordVideo = cleanUrl.match(/(?<=discord\/\d+\/)\d+/g);
+					let isUserVideo = cleanUrl.match(/(?<=[a-zA-Z0-9_]+\/)\d+/g);
 					let isDiscordPage = cleanUrl.match(/discord\/\d+\/?(?!.)/g);
 					let isUserPage = cleanUrl.match(/[a-zA-Z0-9_]+\/?(?!.)/g);
+					let discordName = cleanUrl.match(/^(?<=discord\/)\d+/g);
+					let userName = cleanUrl.match(/^[a-zA-Z0-9_]+/g);
 
 					if (isUserPage) {
 						isUserPage[0] = isUserPage[0].replace(/\//g, "")
@@ -113,6 +213,9 @@ function request(req, res) {
 						} else if (isUserVideo) {
 							page = page.replace(/\$DESCRIPTION\$/g, `Watch ${isUserVideo[0]}'s video`);
 						}
+						let video = searchForVideo(!!isDiscordVideo, discordName ? discordName[0] : userName[0], isDiscordVideo || isUserVideo);
+
+						page = page.replace(/\$VIDEOTAG\$/g, `<meta property="og:${video.type}" content="${video.url}"><meta property="og:${video.type}:secure_url" content="${video.url}">`)
 
 					} else if (isDiscordPage || isUserPage) {
 						console.log("User page...");
@@ -131,7 +234,9 @@ function request(req, res) {
 					}
 
 					// Fallback if special descriptor not matched
-					page = page.replace(/\$DESCRIPTION\$/g, "Browse your Video Edit Bot creations at videoedit.bot")
+					page = page.replace(/\$DESCRIPTION\$/g, "Browse your Video Edit Bot creations at videoedit.bot").replace(/\$VIDEOTAG\$/g,
+						`<meta property="og:image" content="https://github.com/GanerCodes/videoEditBot/raw/master/icons/VideoEditBot256.png"/>
+						<meta property="og:image:alt" content="Video Edit Bot logo"/>`)
 
 					res.write(page);
 					return res.end();
