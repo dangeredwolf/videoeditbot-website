@@ -40,7 +40,7 @@ function loadVideos() {
 
 			$(".yourVideos>.scroller").append(
 				article.append(
-					make("img").attr("src", file.thumbnailUrl).attr("onerror", "this.onerror=null; $(this).parent().remove();")
+					make("img").attr("src", file.thumbnailUrl)//.attr("onerror", "this.onerror=null; $(this).parent().remove();")
 				).click(() => {
 					history.pushState({}, undefined, (isGuild ? "/discord/" : "/") + currentUsername + "/" + file.id);
 					loadVideo(file.id)
@@ -337,7 +337,7 @@ function updateStats() {
 		try {
 			stats = data;
 		} catch(e) {
-			return createAlert("An error occurred while fetching statistics", e, undefined, goHome);
+			// return createAlert("An error occurred while fetching statistics", e, undefined, goHome);
 		}
 
 		if (stats.cpuName) {
@@ -387,10 +387,10 @@ function updateStats() {
 	}).fail((response, error, responseText) => {
 		switch(response.status) {
 			case 500:
-				createAlert("An error occurred while fetching statistics", "The server encountered an internal error while fetching server statistics. Please try again later.", undefined, goHome);
+				// createAlert("An error occurred while fetching statistics", "The server encountered an internal error while fetching server statistics. Please try again later.", undefined, goHome);
 				break;
 			default:
-				createAlert("An error occurred while fetching statistics", responseText, undefined, goHome);
+				// createAlert("An error occurred while fetching statistics", responseText, undefined, goHome);
 				break;
 		}
 	})

@@ -10,6 +10,7 @@
 
 html {
 	background: #111;
+	font-family: Roboto, Segoe UI, -apple-system, BlinkMacSystemFont, sans-serif;
 	font-family: var(--fontFamily);
 	color: #fff;
 	position: absolute;
@@ -198,6 +199,16 @@ nav > .divider {
 	opacity:0;
 	animation:alertIn 0.4s var(--animationTiming) 0.15s forwards;
 	box-shadow: 0 15px 35px rgba(20,20,20,0.5);
+}
+
+.alert.alertNoDelay {
+	opacity:1;
+	animation:alertIn 0.4s cubic-bezier(.1,1,.1,1);
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-left:-300px;
+	margin-top:-100px;
 }
 
 .alert.hidden {
@@ -592,12 +603,16 @@ article.hidden {
 		background: rgba(20,20,20,0.7);
 	}
 
+	.main {
+		top:50px
+	}
+
 	html[data-location="start"] .statistics {
 		left:0;
 	}
 
 	.statistics > .scroller {
-		padding: 35px;
+		padding:0 35px 35px 35px;
 	}
 
 	html[data-location="user"] .yourVideos {
@@ -632,7 +647,7 @@ article.hidden {
 
 	.videoInfo {
 		position:relative;
-		bottom: -60px;
+		bottom: -69px;
 		height: 200px;
 		left: 10px;
 		right: 50px;

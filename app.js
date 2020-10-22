@@ -185,6 +185,9 @@ function request(req, res) {
 		case "app.js":
 			respondWithFile(res, __dirname + "/content/app.js", "text/javascript");
 			break;
+		case "eos.js":
+			respondWithFile(res, __dirname + "/content/eos.js", "text/javascript");
+			break;
 		default:
 			fs.readFile(__dirname + "/content/index.html", {}, function(err, data) {
 				try {
