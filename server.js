@@ -8,11 +8,16 @@ const portApi = 12444;
 const portHttp = 1280;
 const portApiHttp = 1281;
 const { handleErrorPage } = require("./utils.js");
+let serverOptions;
 
-const serverOptions = {
-	key:fs.readFileSync("/etc/ssl/private/videoedit.bot.pem"),
-	cert:fs.readFileSync("/etc/ssl/certs/videoedit.bot.pem")
-};
+try {
+	serverOptions = {
+		key:fs.readFileSync("/etc/ssl/private/videoedit.bot.pem"),
+		cert:fs.readFileSync("/etc/ssl/certs/videoedit.bot.pem")
+	};
+} catch(e) {
+	console.error(e);
+}
 
 let server = https.createServer(serverOptions, (req, res) => {
 	try {
