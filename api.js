@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 const port = 12444;
-const diskSelected = 1; // SYSTEM DEPENDENT
+const diskSelected = 2; // SYSTEM DEPENDENT
 const filePath = "/media/vebdata/Twitter";
 
 const resultsPerPage = 100;
